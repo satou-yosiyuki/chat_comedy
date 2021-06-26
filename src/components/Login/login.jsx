@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -7,14 +7,14 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import SelectBox from "./selectBox";
-import InputField from './inputField'; 
+import InputField from "./inputField";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
   },
   image: {
-    backgroundImage: "url(https://source.unsplash.com/random)",
+    backgroundImage: "url()",
     backgroundRepeat: "no-repeat",
     backgroundColor:
       theme.palette.type === "light"
@@ -42,8 +42,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignInSide() {
+export default function SignInSide({ setName }) {
   const classes = useStyles();
+  const [disabled, setDisabled] = useState(true);
+  const [string, setString] = useState("");
+  const [isComposed, setIsComposed] = useState(false);
+
+  useEffect(() => {
+    const disabled = string === "";
+    setDisabled(disabled);
+  }, [string]);
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -65,6 +73,18 @@ export default function SignInSide() {
               name="email"
               autoComplete="email"
               autoFocus
+              onChange={(e) => {
+                setString(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if(isComposed) return;
+                if (e.key === "Enter") {
+                  setName(e.target.value);
+                  e.preventDefault();
+                }
+              }}
+              onCompositionStart={() => setIsComposed(true)}
+              onCompositionEnd={() => setIsComposed(false)}
             />
             <div>
               <InputField />
@@ -73,11 +93,15 @@ export default function SignInSide() {
               <SelectBox />
             </div>
             <Button
-              type="submit"
+              type="button"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              disabled={disabled}
+              onClick={() => {
+                setName(string);
+              }}
             >
               相方を探す！！！
             </Button>
